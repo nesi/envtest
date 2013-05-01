@@ -1,0 +1,23 @@
+[Desktop Entry]
+Categories=
+Comment=This starts an instance of envtest
+Comment[en]=This starts an instance of envtest
+Encoding=UTF-8
+Exec=/usr/bin/envtest 
+GenericName=
+GenericName[en]=
+Icon=/usr/local/lib/grisu/icons/envtest.png
+MimeType=
+Name=envtest
+Name[en]=envtest
+Path=
+ServiceTypes=
+SwallowExec=
+SwallowTitle=
+Terminal=true
+TerminalOptions=
+Type=Application
+URL=
+X-KDE-SubstituteUID=false
+X-KDE-Username=root
+
