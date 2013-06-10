@@ -1,53 +1,34 @@
 package nz.org.nesi.envtester
-
+import com.google.common.collect.Lists
+import com.google.common.collect.Sets
+import com.google.common.eventbus.EventBus
+import grisu.grin.YnfoManager
+import grisu.jcommons.constants.GridEnvironment
 import grith.jgrith.cred.Cred
+import nz.org.nesi.envtester.view.cli.CliTestListener
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeSupport
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-import nz.org.nesi.envtester.view.cli.CliTestListener
-
-import org.apache.commons.lang3.exception.ExceptionUtils
-
-import com.google.common.base.Charsets
-import com.google.common.collect.Lists
-import com.google.common.eventbus.EventBus
-import com.google.common.io.Files
-
-
 class TestController {
+
+	static final Logger log = LoggerFactory.getLogger(YnfoManager.class);
 
 	static main(def args) {
 
-		def config = new ConfigSlurper().parse(new File('/data/src/grisu/envtest/test.config').toURL())
-
-		List<EnvTest> tests = Lists.newArrayList()
 
 		CliTestListener l = new CliTestListener()
 
-		for (def e in config) {
-
-			def name = e.key
-			def object = e.value
-
-			if ( ! (object instanceof EnvTest) ) {
-				println 'Not test: '+object.toString()
-				continue
-			}
-			object.addPropertyChangeListener(l)
-			tests.add(object)
-		}
-
-
-		println 'tests: '+tests
-
-		TestController tc = new TestController(tests)
-		tc.addPropertyChangeListener(new CliTestListener())
+		TestController tc = new TestController()
+		tc.addTestPropertyChangeListener(l)
+		tc.addPropertyChangeListener(l)
 		tc.startTests()
 
-		File file = tc.createZipFile()
+		File file = tc.archiveResults()
 
 		println file.getAbsolutePath()
 	}
@@ -64,39 +45,53 @@ class TestController {
 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this)
 
+	private Set<PropertyChangeListener> testListeners = Sets.newLinkedHashSet()
+
 	private final EnvDetails envdetails = new EnvDetails();
 
 	public TestController(String pathToConfig) {
 
-		if ( ! pathToConfig ) {
-			pathToConfig = ''
-		}
+		def config = null
 
-		def config = new ConfigSlurper().parse(pathToConfig).toURL()
-
-		List<EnvTest> tests = Lists.newArrayList()
-
-		CliTestListener l = new CliTestListener()
-
-		for (def e in config) {
-
-			def name = e.key
-			def object = e.value
-
-			if ( ! (object instanceof EnvTest) ) {
-				println 'Not test: '+object.toString()
-				continue
+		try {
+			if ( ! pathToConfig ) {
+				pathToConfig = 'https://raw.github.com/nesi/nesi-grid-info/master/env_test_config.groovy'
 			}
-			object.addPropertyChangeListener(l)
-			tests.add(object)
+
+			if ( pathToConfig.startsWith('http') ) {
+				log.debug 'Retrieving remote config from "'+pathToConfig+'"...'
+				config = new ConfigSlurper().parse(new URL(pathToConfig))
+			} else {
+				log.debug 'Using local config from "'+pathToConfig+'"...'
+				config = new ConfigSlurper().parse(new File(pathToConfig).toURL())
+			}
+
+			List<EnvTest> testsTemp = Lists.newArrayList()
+
+			for (def e in config) {
+
+				def name = e.key
+				def object = e.value
+
+				if ( ! (object instanceof EnvTest) ) {
+					println 'Not test: '+object.toString()
+					continue
+				}
+				testsTemp.add(object)
+			}
+
+			addTests(testsTemp)
+
+		} catch (all) {
+			log.error("Can't build tests, probably test config broken: "+all.getLocalizedMessage(), all)
+			throw new RuntimeException("Can't create tests: "+all.getLocalizedMessage())
 		}
 
 
-		println 'tests: '+tests
 	}
 
 	public TestController() {
-		this(null)
+		this((String)null)
 	}
 
 	public TestController(List<EnvTest> tests) {
@@ -111,6 +106,13 @@ class TestController {
 		pcs.addPropertyChangeListener(l)
 	}
 
+	public void addTestPropertyChangeListener(PropertyChangeListener l) {
+		testListeners.add(l)
+		tests.each {
+			it.addPropertyChangeListener(l)
+		}
+	}
+
 	public List<EnvTest> getTests() {
 		return tests
 	}
@@ -121,6 +123,9 @@ class TestController {
 		eventBus.register(t)
 		if ( cred ) {
 			t.setCredential(cred)
+		}
+		for ( PropertyChangeListener l : testListeners ) {
+			t.addPropertyChangeListener(l)
 		}
 	}
 
@@ -133,7 +138,7 @@ class TestController {
 		eventBus.post(cred)
 	}
 
-	public void startTests(int repeat) {
+	public File startTests(int repeat) {
 
 		Long testrun_id = new Date().getTime()
 
@@ -148,9 +153,9 @@ class TestController {
 		}
 	}
 
-	public void startTests() {
+	public File startTests() {
 
-		startTests(1)
+		return startTests(1)
 	}
 
 	public List<EnvTest> getEnabledTests() {
@@ -161,11 +166,15 @@ class TestController {
 		}
 	}
 
-	public File createZipFile() {
+	public File archiveResults() {
 
-		File dir = Files.createTempDir()
+		if ( ! tests ) {
+			return null
+		}
+
+		File dir = GridEnvironment.getGridConfigDirectory()
 		String username = System.getProperty("user.name")
-		File zip = new File(dir, username+"_results.zip")
+		File zip = new File(dir, username+"_env_tests.zip")
 		ZipOutputStream zipFile = new ZipOutputStream(new FileOutputStream(zip))
 
 		def buffer = new byte[1024]
@@ -187,6 +196,8 @@ class TestController {
 				zipFile.closeEntry()
 			}
 		}
+
+//		File temp = new File(dir, "testrun_"+)
 
 		zipFile.close()
 

@@ -6,13 +6,13 @@
 	<packaging>jar</packaging>
 	<version>0.1-SNAPSHOT</version>
 	<name>a grisu client</name>
-	
+
 	<parent>
 		<groupId>nz.org.nesi</groupId>
 		<artifactId>nesi</artifactId>
-		<version>0.23</version>
-	</parent>	
-	
+		<version>1.0</version>
+	</parent>
+
 	<repositories>
 		<repository>
 			<id>bestgrid.public.release</id>
@@ -40,7 +40,13 @@
 			<artifactId>grisu-client-swing</artifactId>
 			<version>${grisu.version}</version>
 		</dependency>
-		
+
+        <dependency>
+            <groupId>com.miglayout</groupId>
+            <artifactId>miglayout-swing</artifactId>
+            <version>4.2</version>
+        </dependency>
+
 <!-- 		<dependency> -->
 <!-- 			<groupId>grisu.frontend</groupId> -->
 <!-- 			<artifactId>grisu-client-swing</artifactId> -->
@@ -50,10 +56,10 @@
 <!-- 		</dependency> -->
 
 
-		<!-- we can't include the bouncy castle library in our assembled binary 
-			so it has to put in the classpath in some other way. You could either have 
-			the bcprov jar in the same directory as your executable jar, or you just 
-			do nothing. Grisu will try to download it in the background and put it in 
+		<!-- we can't include the bouncy castle library in our assembled binary
+			so it has to put in the classpath in some other way. You could either have
+			the bcprov jar in the same directory as your executable jar, or you just
+			do nothing. Grisu will try to download it in the background and put it in
 			the classpath once your application is executed the first time... -->
 		<dependency>
 			<groupId>bouncycastle</groupId>
@@ -62,10 +68,15 @@
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
+        <dependency>
+            <groupId>grith</groupId>
+            <artifactId>jgrith</artifactId>
+            <version>1.0</version>
+        </dependency>
 
-		<!-- further grisu dependencies, incuded by default but can be enabled/disabled 
+		<!-- further grisu dependencies, incuded by default but can be enabled/disabled
 			if not needed and you want a smaller assembly -->
-		<!-- the grisu-core dependency is needed when you want to connect to a 
+		<!-- the grisu-core dependency is needed when you want to connect to a
 			local backend (which is the only supported backend for grisu 0.3 at the moment -->
 		<!-- <dependency>
 			<groupId>grisu.backend</groupId>
@@ -89,21 +100,40 @@
 			<version>0.1.49</version>
 		</dependency>
 		<dependency>
-			<groupId>nz.nesi</groupId>
+			<groupId>nz.org.nesi</groupId>
 			<artifactId>grin</artifactId>
-			<version>0.2.3-SNAPSHOT</version>
+			<version>0.4</version>
 		</dependency>
-		<dependency>
-			<groupId>grisu.backend</groupId>
-			<artifactId>grisu-core</artifactId>
-			<version>${grisu.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>grisu.frontend</groupId>
+            <artifactId>grisu-client-swing</artifactId>
+            <version>${grisu.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>grisu.backend</groupId>
+            <artifactId>grisu-core</artifactId>
+            <version>${grisu.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.simpleframework</groupId>
+            <artifactId>simple-xml</artifactId>
+            <version>2.7</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>stax-api</artifactId>
+                    <groupId>stax</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
 	</dependencies>
 
 	<build>
 
 		<plugins>
-		
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
@@ -116,8 +146,8 @@
 					<tagNameFormat>@{project.version}</tagNameFormat>
 					<releaseProfiles>deb,rpm</releaseProfiles>
 				</configuration>
-			</plugin>		
-		
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -172,7 +202,7 @@
 					<value>${project.version}</value>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -203,10 +233,10 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>			
-			
+			</plugin>
 
-			<!-- you can disable the assembly plugin if you want, your builds will 
+
+			<!-- you can disable the assembly plugin if you want, your builds will
 				be faster I find it quite handy to have maven build an executable jar, though -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -222,7 +252,7 @@
 							<archive>
 								<index>true</index>
 								<manifest>
-									<mainClass>nz.org.nesi.GroovyClient</mainClass>
+									<mainClass>nz.org.nesi.appmanage.AppManage</mainClass>
 								</manifest>
 								<manifestEntries>
 									<Class-Path>bcprov.jar local-backend-dev.jar local-backend.jar</Class-Path>
@@ -236,7 +266,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -379,7 +409,7 @@
 												<group>root</group>
 												<filemode>755</filemode>
 											</mapper>
-										</data>															
+										</data>
 										<data>
 											<src>${project.basedir}/src/pkg/data/envtest.desktop</src>
 											<type>file</type>
@@ -495,9 +525,9 @@
 							<preinstallScriptlet>
 								<script>echo "Installing envtest..."</script>
 							</preinstallScriptlet>
-							<!-- <postinstallScriptlet> <scriptFile>src/main/scripts/postinstall</scriptFile> 
-								<fileEncoding>utf-8</fileEncoding> </postinstallScriptlet> <preremoveScriptlet> 
-								<scriptFile>src/main/scripts/preremove</scriptFile> <fileEncoding>utf-8</fileEncoding> 
+							<!-- <postinstallScriptlet> <scriptFile>src/main/scripts/postinstall</scriptFile>
+								<fileEncoding>utf-8</fileEncoding> </postinstallScriptlet> <preremoveScriptlet>
+								<scriptFile>src/main/scripts/preremove</scriptFile> <fileEncoding>utf-8</fileEncoding>
 								</preremoveScriptlet> -->
 						</configuration>
 					</plugin>
@@ -511,7 +541,7 @@
 
 
 	<properties>
-		<grisu.version>0.6.3-SNAPSHOT</grisu.version>
+		<grisu.version>0.7</grisu.version>
 	</properties>
 </project>
 

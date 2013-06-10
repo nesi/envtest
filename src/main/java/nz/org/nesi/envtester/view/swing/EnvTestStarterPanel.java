@@ -1,195 +1,235 @@
 package nz.org.nesi.envtester.view.swing;
 
+import com.google.common.io.Files;
 import grith.gridsession.GridClient;
 import grith.gridsession.view.GridLoginDialog;
 import grith.jgrith.cred.AbstractCred;
 import grith.jgrith.cred.Cred;
+import net.miginfocom.swing.MigLayout;
+import nz.org.nesi.envtester.EmailUtils;
+import nz.org.nesi.envtester.EnvTest;
+import nz.org.nesi.envtester.TestController;
 
-import java.awt.CardLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
-
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-
-import net.miginfocom.swing.MigLayout;
-import nz.org.nesi.envtester.EnvTest;
-import nz.org.nesi.envtester.TestController;
-
-import com.google.common.io.Files;
 
 public class EnvTestStarterPanel extends JPanel implements
-		PropertyChangeListener {
+        PropertyChangeListener {
 
-	public static final String LIST_PANEL = "list";
-	public static final String LOG_PANEL = "log";
+    public static final String LIST_PANEL = "list";
+    public static final String LOG_PANEL = "log";
 
-	private JPanel panel;
-	private JButton btnNewButton;
-	private TestListPanel testListPanel;
-	private LogPanel logPanel;
+    private static final String EMAIL = "m.binsteiner@auckland.ac.nz";
 
-	private final TestController testController;
-	private final GridClient client;
-	private JSpinner spinner;
-	private JLabel lblRepeat;
+    private JPanel panel;
+    private JButton btnNewButton;
+    private TestListPanel testListPanel;
+    private LogPanel logPanel;
 
-	/**
-	 * Create the panel.
-	 */
-	public EnvTestStarterPanel(TestController tc) {
-		this.testController = tc;
-		this.testController.addPropertyChangeListener(this);
-		try {
-			client = new GridClient();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+    private final TestController testController;
+    private final GridClient client;
+    private JSpinner spinner;
+    private JLabel lblRepeat;
+    private JScrollPane scrollPane;
 
-		setLayout(new MigLayout("", "[][grow][grow]", "[grow][]"));
-		add(getPanel(), "cell 0 0 3 1,grow");
-		add(getLblRepeat(), "cell 0 1");
-		add(getSpinner(), "cell 1 1");
-		add(getBtnNewButton(), "cell 2 1,alignx right");
+    /**
+     * Create the panel.
+     */
+    public EnvTestStarterPanel(TestController tc) {
+        this.testController = tc;
+        this.testController.addPropertyChangeListener(this);
+        try {
+            client = new GridClient();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-		for (EnvTest t : tc.getTests()) {
-			t.addPropertyChangeListener(this);
-		}
+        setLayout(new MigLayout("", "[][grow][grow]", "[grow][]"));
+        add(getPanel(), "cell 0 0 3 1,grow");
+        add(getLblRepeat(), "cell 0 1");
+        add(getSpinner(), "cell 1 1");
+        add(getBtnNewButton(), "cell 2 1,alignx right");
 
-	}
+        for (EnvTest t : tc.getTests()) {
+            t.addPropertyChangeListener(this);
+        }
 
-	private JPanel getPanel() {
-		if (panel == null) {
-			panel = new JPanel();
-			panel.setLayout(new CardLayout(0, 0));
-			panel.add(getTestListPanel(), LIST_PANEL);
-			panel.add(getLogPanel(), LOG_PANEL);
-		}
-		return panel;
-	}
+    }
 
-	private JButton getBtnNewButton() {
-		if (btnNewButton == null) {
-			btnNewButton = new JButton("Start");
-			btnNewButton.addActionListener(new ActionListener() {
+    private JPanel getPanel() {
+        if (panel == null) {
+            panel = new JPanel();
+            panel.setLayout(new CardLayout(0, 0));
+            //panel.add(getTestListPanel(), LIST_PANEL);
+            panel.add(getScrollPane(), LIST_PANEL);
+            panel.add(getLogPanel(), LOG_PANEL);
+        }
+        return panel;
+    }
 
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
+    private JScrollPane getScrollPane() {
+        if (scrollPane == null) {
+            scrollPane = new JScrollPane();
+            scrollPane.setViewportView(getTestListPanel());
+        }
+        return scrollPane;
+    }
 
-					if ("Start".equals(btnNewButton.getText())) {
+    private JButton getBtnNewButton() {
+        if (btnNewButton == null) {
+            btnNewButton = new JButton("Start");
+            btnNewButton.addActionListener(new ActionListener() {
 
-						Thread t = new Thread() {
-							public void run() {
-								
-								if ( testController.requiresAuthentication() ) {
-									
-									Cred c = AbstractCred.getExistingCredential();
-									if ( c == null ) { 
-										GridLoginDialog d = new GridLoginDialog(client);
-										d.setVisible(true);
-										c = client.getCredential();
-									}
-									
-									testController.setAuthentication(c);
-									
-								}
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
 
-								try {
-									switchToPanel(LOG_PANEL);
-									getBtnNewButton().setEnabled(false);
-									getBtnNewButton().setText("Running...");
+                    if ("Start".equals(btnNewButton.getText())) {
 
-									testController.startTests((Integer)getSpinner().getValue());
-									
-									File zip = testController.createZipFile();
-									
-									try {
-										Files.move(zip, new File("/home/markus/Desktop/zipfile.zip"));
-									} catch (IOException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
+                        Thread t = new Thread() {
+                            public void run() {
 
-								} finally {
-									getBtnNewButton().setText("OK");
-									getBtnNewButton().setEnabled(true);
-								}
+                                if (testController.requiresAuthentication()) {
 
-							}
-						};
+                                    Cred c = AbstractCred.getExistingCredential();
+                                    if (c == null) {
+                                        GridLoginDialog d = new GridLoginDialog(client);
+                                        d.setVisible(true);
+                                        c = client.getCredential();
+                                    }
 
-						t.start();
+                                    testController.setAuthentication(c);
 
-					} else if ("OK".equals(btnNewButton.getText())) {
-						clearLogPanel();
-						switchToPanel(LIST_PANEL);
-						btnNewButton.setText("Start");
-					}
+                                }
 
-				}
-			});
+                                try {
+                                    switchToPanel(LOG_PANEL);
+                                    getBtnNewButton().setEnabled(false);
+                                    getBtnNewButton().setText("Running...");
 
-		}
-		return btnNewButton;
-	}
+                                    testController.startTests((Integer) getSpinner().getValue());
 
-	private TestListPanel getTestListPanel() {
-		if (testListPanel == null) {
-			testListPanel = new TestListPanel();
-			for (EnvTest t : testController.getTests()) {
-				testListPanel.addTest(t);
-			}
-		}
-		return testListPanel;
-	}
+                                    File zip = testController.archiveResults();
 
-	private LogPanel getLogPanel() {
-		if (logPanel == null) {
-			logPanel = new LogPanel();
-		}
-		return logPanel;
-	}
+                                    try {
 
-	private void clearLogPanel() {
-		getLogPanel().clear();
-	}
+                                        String[] options = {"Save results", "Send results via email", "Cancel"};
+                                        JPanel panel = new JPanel();
+                                        panel.add(new JLabel("Tests finished, do you want to send the results via email?"), BorderLayout.CENTER);
+                                        int selected = JOptionPane.showOptionDialog(
+                                                SwingUtilities.getRootPane(EnvTestStarterPanel.this), panel, "Results", JOptionPane.YES_NO_OPTION,
+                                                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
-	private void switchToPanel(String panelName) {
-		CardLayout cl = (CardLayout) (getPanel().getLayout());
-		cl.show(getPanel(), panelName);
-	}
+                                        switch (selected) {
+                                            case 2:
+                                            case JOptionPane.CLOSED_OPTION:
+                                                break;
+                                            case 0:
+                                                JFileChooser fileChooser = new JFileChooser();
+                                                fileChooser.setSelectedFile(new File("results.zip"));
+                                                if (fileChooser.showSaveDialog(EnvTestStarterPanel.this) == JFileChooser.APPROVE_OPTION) {
+                                                    File file = fileChooser.getSelectedFile();
+                                                    Files.copy(zip, file);
+                                                }
+                                                break;
+                                            case 1:
+                                                File tmp = new File(Files.createTempDir(), zip.getName());
 
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		
-		Object oldValue = evt.getOldValue();
-		Object newValue = evt.getNewValue();
-		
-		if ( oldValue != null && newValue instanceof EnvTest ) {
-			getLogPanel().addMessage("\n======================================================\n");
-		} else if ( evt.getNewValue() instanceof String ){
-			getLogPanel().addMessage((String)evt.getNewValue());
-		}
+                                                Files.copy(zip, tmp);
+                                                Desktop desktop = Desktop.getDesktop();
+                                                EmailUtils.mailto(EMAIL, "Environment-test result",
+                                                        "<please fill in your name and details about where you are located>", tmp.getAbsolutePath());
 
-	}
-	private JSpinner getSpinner() {
-		if (spinner == null) {
-			spinner = new JSpinner();
-			spinner.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
-		}
-		return spinner;
-	}
-	private JLabel getLblRepeat() {
-		if (lblRepeat == null) {
-			lblRepeat = new JLabel("Repeat:");
-		}
-		return lblRepeat;
-	}
+                                                break;
+                                            default:
+                                                throw new RuntimeException("No valid option: "+selected);
+                                        }
+
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
+
+                                } finally {
+                                    getBtnNewButton().setText("OK");
+                                    getBtnNewButton().setEnabled(true);
+                                }
+
+                            }
+                        };
+
+                        t.start();
+
+                    } else if ("OK".equals(btnNewButton.getText())) {
+                        clearLogPanel();
+                        switchToPanel(LIST_PANEL);
+                        btnNewButton.setText("Start");
+                    }
+
+                }
+            });
+
+        }
+        return btnNewButton;
+    }
+
+    private TestListPanel getTestListPanel() {
+        if (testListPanel == null) {
+            testListPanel = new TestListPanel();
+            for (EnvTest t : testController.getTests()) {
+                testListPanel.addTest(t);
+            }
+        }
+        return testListPanel;
+    }
+
+    private LogPanel getLogPanel() {
+        if (logPanel == null) {
+            logPanel = new LogPanel();
+        }
+        return logPanel;
+    }
+
+    private void clearLogPanel() {
+        getLogPanel().clear();
+    }
+
+    private void switchToPanel(String panelName) {
+        CardLayout cl = (CardLayout) (getPanel().getLayout());
+        cl.show(getPanel(), panelName);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        Object oldValue = evt.getOldValue();
+        Object newValue = evt.getNewValue();
+
+        if (oldValue != null && newValue instanceof EnvTest) {
+            getLogPanel().addMessage("\n======================================================\n");
+        } else if (evt.getNewValue() instanceof String) {
+            getLogPanel().addMessage((String) evt.getNewValue());
+        }
+
+    }
+
+    private JSpinner getSpinner() {
+        if (spinner == null) {
+            spinner = new JSpinner();
+            spinner.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
+        }
+        return spinner;
+    }
+
+    private JLabel getLblRepeat() {
+        if (lblRepeat == null) {
+            lblRepeat = new JLabel("Repeat:");
+        }
+        return lblRepeat;
+    }
 }

@@ -1,27 +1,18 @@
 package nz.org.nesi.envtester;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
 
 public class EnvTestResult {
-	
+
 	private final Map<Date, String> log = Collections.synchronizedMap(new TreeMap<Date, String>());
 	private String result = "n/a";
 	private final List<String> details = Lists.newArrayList();
@@ -31,79 +22,79 @@ public class EnvTestResult {
 	private Exception exception;
 	private Date started;
 	private Date finished;
-	
+
 	private final String testrunId;
-	
+
 	private final EnvTest test;
-	
+
 	public EnvTestResult(EnvTest test, String testrun_id) {
 		this.test = test;
 		this.testrunId = testrun_id;
 	}
-	
+
 	public String getTestRunId() {
 		return testrunId;
 	}
-	
+
 	public void addFile(File file) {
 		files.add(file);
 	}
-	
+
 	public String getTestName() {
 		return test.getTestName();
 	}
-	
+
 	public String getTestDescription() {
 		return test.getTestDescription();
 	}
-	
+
 	public void addLog(String msg) {
 		log.put(new Date(), msg);
 	}
-	
+
 	public synchronized void addDetail(String detail) {
 		details.add(detail);
 	}
-	
+
 	public synchronized void addError(String err) {
 		errors.add(err);
 	}
-	
+
 	public void setException(Exception e) {
 		this.exception = e;
 	}
-	
+
 	public void setResult(String result) {
 		this.result = result;
 	}
-	
+
 	public List<String> getErrors() {
 		return this.errors;
 	}
-	
+
 	public String getResult() {
 		return result;
 	}
-	
+
 	public List<String> getDetails() {
 		return details;
 	}
-	
+
 	public Map<Date, String> getLog() {
 		return log;
 	}
-	
+
 	public void setFailed() {
 		this.failed = true;
 	}
-	
+
 	public boolean isFailed() {
 		return this.failed;
 	}
-	
+
 	private Map<String, String> createPropertiesMap() {
 		Map<String, String> map = Maps.newLinkedHashMap();
-		
+
 		map.put(EnvTest.NAME_KEY, test.getTestName());
 		map.put(EnvTest.DESC_KEY, test.getTestDescription());
 		map.put(EnvTest.TEST_ID_KEY, test.testId);
@@ -115,28 +106,28 @@ public class EnvTestResult {
 		if ( finished != null ) {
 			map.put(EnvTest.FINISHED_KEY, Long.toString(finished.getTime()));
 		}
-		
+
 		map.put(EnvTest.RESULT_KEY, getResult());
-		
+
 		for ( String key : test.getConfig().keySet() ) {
-			if ( EnvTest.NAME_KEY.equals(key) 
+			if ( EnvTest.NAME_KEY.equals(key)
 					|| EnvTest.DESC_KEY.equals(key) ) {
 				continue;
 			}
-			
+
 			map.put(key, test.getConfig(key));
 		}
-		
-		
+
+
 		return map;
 	}
-	
+
 	public List<File> getTestFiles() throws IOException {
-		
+
 		File dir = Files.createTempDir();
-		
+
 		List<File> files = Lists.newArrayList();
-		
+
 		// results file
 		StringBuffer temp = new StringBuffer("Test: "+getTestName()+"\n\n");
 		temp.append("Description: "+getTestDescription()+"\n\n");
@@ -150,19 +141,19 @@ public class EnvTestResult {
 		for ( String l : details ) {
 			temp.append(l+"\n");
 		}
-		
+
 		if ( getErrors().size() > 0 ) {
 			temp.append("\n\nErrors:\n\n");
 			for ( String e : errors ) {
 				temp.append(e+"\n");
 			}
 		}
-		
+
 		temp.append("\n");
 		File resultsFile = new File(dir, "results.test");
 		Files.write(temp, resultsFile, Charsets.UTF_8);
 		files.add(resultsFile);
-		
+
 		temp = new StringBuffer();
 		Map<String, String> map = createPropertiesMap();
 		for ( String key : map.keySet() ) {
@@ -171,7 +162,7 @@ public class EnvTestResult {
 		File propFile = new File(dir, "properties.test");
 		Files.write(temp, propFile, Charsets.UTF_8);
 		files.add(propFile);
-		
+
 		temp = new StringBuffer();
 		for ( String detail : getDetails() ) {
 			temp.append(detail+"\n");
@@ -179,7 +170,7 @@ public class EnvTestResult {
 		File detailsFile = new File(dir, "details.test");
 		Files.write(temp, detailsFile, Charsets.UTF_8);
 		files.add(detailsFile);
-		
+
 		if ( errors.size() > 0 ) {
 			temp = new StringBuffer();
 			for ( String error : getErrors() ) {
@@ -195,7 +186,7 @@ public class EnvTestResult {
 			Files.write(exc, exceptionFile, Charsets.UTF_8);
 			files.add(exceptionFile);
 		}
-		
+
 		EnvDetails d = test.getEnvDetails();
 		if ( d != null ) {
 			String envdetails = d.createReport();
@@ -203,29 +194,29 @@ public class EnvTestResult {
 			Files.write(envdetails, envDetailsFile, Charsets.UTF_8);
 			files.add(envDetailsFile);
 		}
-		
+
 		List<File> additionalFiles = test.getAdditionalFiles();
 		if ( additionalFiles != null ) {
 			files.addAll(additionalFiles);
 		}
-		
 
-		
-		
+
+
+
 		return files;
 		// creating the zip file
 
-		
+
 	}
-	
+
 	public EnvTest getTest() {
 		return test;
 	}
-	
+
 	public Date getStarted() {
 		return started;
 	}
-	
+
 	public Long getDuration() {
 		if ( finished == null || started == null ) {
 			return -1L;
@@ -235,11 +226,11 @@ public class EnvTestResult {
 	}
 
 	public void setStarted() {
-		
+
 		started = new Date();
-		
+
 	}
-	
+
 	public void setFinished() {
 		finished = new Date();
 	}
