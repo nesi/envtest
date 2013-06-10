@@ -35,11 +35,11 @@
 
 		<!-- the main grisu dependency. -->
 		<!-- comment this and uncomment the 'grisu-client-swing' dependency below if you need the swing dependencies -->
-		<dependency>
-			<groupId>grisu.frontend</groupId>
-			<artifactId>grisu-client-swing</artifactId>
-			<version>${grisu.version}</version>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>grisu.frontend</groupId>-->
+			<!--<artifactId>grisu-client-swing</artifactId>-->
+			<!--<version>${grisu.version}</version>-->
+		<!--</dependency>-->
 
         <dependency>
             <groupId>com.miglayout</groupId>
@@ -70,8 +70,8 @@
 		</dependency>
         <dependency>
             <groupId>grith</groupId>
-            <artifactId>jgrith</artifactId>
-            <version>1.0</version>
+            <artifactId>grid-session</artifactId>
+            <version>0.3</version>
         </dependency>
 
 		<!-- further grisu dependencies, incuded by default but can be enabled/disabled
@@ -85,7 +85,11 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>-->
-
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
 
 		<!-- test dependencies -->
 		<dependency>
@@ -99,21 +103,20 @@
 			<artifactId>jsch</artifactId>
 			<version>0.1.49</version>
 		</dependency>
-		<dependency>
-			<groupId>nz.org.nesi</groupId>
-			<artifactId>grin</artifactId>
-			<version>0.4</version>
+		<!--<dependency>-->
+			<!--<groupId>nz.org.nesi</groupId>-->
+			<!--<artifactId>grin</artifactId>-->
+			<!--<version>0.4</version>-->
+		<!--</dependency>-->
+        <dependency>
+			<groupId>jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>1.0.13</version>
 		</dependency>
         <dependency>
-            <groupId>grisu.frontend</groupId>
-            <artifactId>grisu-client-swing</artifactId>
-            <version>${grisu.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>grisu.backend</groupId>
-            <artifactId>grisu-core</artifactId>
-            <version>${grisu.version}</version>
-            <scope>provided</scope>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.1</version>
         </dependency>
 
         <dependency>

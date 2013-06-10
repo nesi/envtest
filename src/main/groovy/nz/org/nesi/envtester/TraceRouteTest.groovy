@@ -1,6 +1,6 @@
 package nz.org.nesi.envtester
 
-import org.apache.commons.lang3.SystemUtils
+import org.apache.commons.lang.SystemUtils
 
 class TraceRouteTest extends ExternalCommandEnvTest {
 
@@ -8,15 +8,15 @@ class TraceRouteTest extends ExternalCommandEnvTest {
 	public TraceRouteTest(Map<String, String> config) {
 		super(config)
 	}
-	
+
 	@Override
 	protected List<String> getCommand() {
 		def command = []
-		
+
 		if ( SystemUtils.IS_OS_WINDOWS ) {
 			command.add('tracert')
 		} else {
-		
+
 			try {
 				def proc = 'traceroute --help'.execute()
 				command.add('tracepath')
@@ -24,7 +24,7 @@ class TraceRouteTest extends ExternalCommandEnvTest {
 				command.add('traceroute')
 			}
 		}
-		
+
 		command.add(getConfig(HOST_KEY))
 
 		return command
@@ -35,7 +35,7 @@ class TraceRouteTest extends ExternalCommandEnvTest {
 	protected String[] requiredConfigKeys() {
 		return [ HOST_KEY ] as String[]
 	}
-	
+
 	@Override
 	public boolean requiresAuthentication() {
 		return false;
@@ -49,17 +49,17 @@ class TraceRouteTest extends ExternalCommandEnvTest {
 	@Override
 	protected void postTestDetails() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	protected void postTestErrors(Exception e) {
 		// TODO Auto-generated method stub
-		
-	}
-	
-	
 
-	
+	}
+
+
+
+
 
 }

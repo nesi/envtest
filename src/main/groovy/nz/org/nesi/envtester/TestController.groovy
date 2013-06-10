@@ -1,8 +1,8 @@
 package nz.org.nesi.envtester
+
 import com.google.common.collect.Lists
 import com.google.common.collect.Sets
 import com.google.common.eventbus.EventBus
-import grisu.grin.YnfoManager
 import grisu.jcommons.constants.GridEnvironment
 import grith.jgrith.cred.Cred
 import nz.org.nesi.envtester.view.cli.CliTestListener
@@ -16,7 +16,7 @@ import java.util.zip.ZipOutputStream
 
 class TestController {
 
-	static final Logger log = LoggerFactory.getLogger(YnfoManager.class);
+	static final Logger log = LoggerFactory.getLogger(TestController.class);
 
 	static main(def args) {
 

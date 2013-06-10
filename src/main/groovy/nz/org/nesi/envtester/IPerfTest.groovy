@@ -1,5 +1,4 @@
 package nz.org.nesi.envtester
-import grisu.jcommons.interfaces.GrinformationManagerDozer
 import grisu.jcommons.interfaces.InformationManager
 import grisu.jcommons.utils.PackageFileHelper
 import grisu.model.info.dto.FileSystem
@@ -10,7 +9,8 @@ class IPerfTest extends ExternalCommandEnvTest {
 
 	static main(args) {
 
-		InformationManager grin = new GrinformationManagerDozer('/data/src/config/nesi-grid-info/nesi_info.groovy')
+		InformationManager grin = null;
+        //new GrinformationManagerDozer('/data/src/config/nesi-grid-info/nesi_info.groovy')
 
 
 		for ( FileSystem fs : grin.getFileSystems() ) {

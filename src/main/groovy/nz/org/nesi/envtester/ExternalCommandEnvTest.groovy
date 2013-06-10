@@ -40,6 +40,7 @@ abstract class ExternalCommandEnvTest extends EnvTest {
 	@Override
 	protected void runTest() {
 
+
 		def proc = null
 
 		proc = getCommand().execute()

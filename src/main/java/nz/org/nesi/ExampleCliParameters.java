@@ -1,10 +1,9 @@
 package nz.org.nesi;
 
-import grisu.frontend.view.cli.GrisuCliParameters;
-
 import com.beust.jcommander.Parameter;
+import grith.jgrith.cred.GridCliParameters;
 
-public class ExampleCliParameters extends GrisuCliParameters {
+public class ExampleCliParameters extends GridCliParameters {
 
 	@Parameter(names = { "-f", "--file" }, description = "the path to a file")
 	private String file;
