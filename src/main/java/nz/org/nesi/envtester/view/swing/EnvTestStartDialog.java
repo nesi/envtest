@@ -12,7 +12,7 @@ public class EnvTestStartDialog extends JDialog {
 
     public EnvTestStartDialog(Frame owner, TestController tc) {
         super(owner);
-        if ( tc == null ) {
+        if (tc == null) {
             this.tc = new TestController();
         } else {
             this.tc = tc;

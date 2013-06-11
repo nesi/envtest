@@ -32,7 +32,8 @@ class IPerfTest extends ExternalCommandEnvTest {
 
         String executable = null;
         if ( isWindows() ) {
-            executable = 'bin'+File.separator+'windows'+File.separator+'iperf.exe'
+            //executable = 'bin'+File.separator+'windows'+File.separator+'iperf.exe'
+            executable = 'bin/windows/iperf.exe'
         } else if ( isMac() ) {
             executable = 'bin'+ File.separator+'mac'+File.separator+'iperf'
         } else if ( isUnix() ) {
