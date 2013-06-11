@@ -8,9 +8,15 @@ import java.awt.*;
 public class EnvTestStartDialog extends JDialog {
     private JPanel contentPane;
     private EnvTestStarterPanel envTestStarterPanel1;
+    private final TestController tc;
 
-    public EnvTestStartDialog(Frame owner) {
+    public EnvTestStartDialog(Frame owner, TestController tc) {
         super(owner);
+        if ( tc == null ) {
+            this.tc = new TestController();
+        } else {
+            this.tc = tc;
+        }
         setDefaultCloseOperation(HIDE_ON_CLOSE);
         $$$setupUI$$$();
         setContentPane(contentPane);
@@ -19,13 +25,12 @@ public class EnvTestStartDialog extends JDialog {
 
 
     public static void main(String[] args) {
-        EnvTestStartDialog dialog = new EnvTestStartDialog(null);
+        EnvTestStartDialog dialog = new EnvTestStartDialog(null, null);
         dialog.pack();
         dialog.setVisible(true);
     }
 
     public void createUIComponents() {
-        TestController tc = new TestController();
         envTestStarterPanel1 = new EnvTestStarterPanel(tc);
     }
 

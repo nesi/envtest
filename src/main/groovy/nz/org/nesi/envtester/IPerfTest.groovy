@@ -32,15 +32,14 @@ class IPerfTest extends ExternalCommandEnvTest {
 
         String executable = null;
         if ( isWindows() ) {
-            executable = 'bin'+File.separator+'windows'
+            executable = 'bin'+File.separator+'windows'+File.separator+'iperf.exe'
         } else if ( isMac() ) {
-            executable = 'bin'+ File.separator+'mac'
+            executable = 'bin'+ File.separator+'mac'+File.separator+'iperf'
         } else if ( isUnix() ) {
-            executable = 'bin' + File.separator+'linux'
+            executable = 'bin' + File.separator+'linux'+File.separator+'iperf'
         }
 
-        executable = executable + File.separator + 'iperf'
-
+        
         // workaround a bug in Packagefilehelper
         File newFile = new File(PackageFileHelper.TEMP_DIR, executable)
         newFile.getParentFile().mkdirs()

@@ -115,44 +115,7 @@ public class EnvTestStarterPanel extends JPanel implements
 
                                     File zip = testController.archiveResults();
 
-                                    try {
-
-                                        String[] options = {"Save results", "Send results via email", "Cancel"};
-                                        JPanel panel = new JPanel();
-                                        panel.add(new JLabel("Tests finished, do you want to send the results via email?"), BorderLayout.CENTER);
-                                        int selected = JOptionPane.showOptionDialog(
-                                                SwingUtilities.getRootPane(EnvTestStarterPanel.this), panel, "Results", JOptionPane.YES_NO_OPTION,
-                                                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-
-                                        switch (selected) {
-                                            case 2:
-                                            case JOptionPane.CLOSED_OPTION:
-                                                break;
-                                            case 0:
-                                                JFileChooser fileChooser = new JFileChooser();
-                                                fileChooser.setSelectedFile(new File("results.zip"));
-                                                if (fileChooser.showSaveDialog(EnvTestStarterPanel.this) == JFileChooser.APPROVE_OPTION) {
-                                                    File file = fileChooser.getSelectedFile();
-                                                    Files.copy(zip, file);
-                                                }
-                                                break;
-                                            case 1:
-                                                File tmp = new File(Files.createTempDir(), zip.getName());
-
-                                                Files.copy(zip, tmp);
-                                                Desktop desktop = Desktop.getDesktop();
-                                                EmailUtils.mailto(EMAIL, "Environment-test result",
-                                                        "<please fill in your name and details about where you are located>", tmp.getAbsolutePath());
-
-                                                break;
-                                            default:
-                                                throw new RuntimeException("No valid option: "+selected);
-                                        }
-
-
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
+                                    askUserWhatToDoWithResults(zip);
 
 
                                 } finally {
@@ -176,6 +139,49 @@ public class EnvTestStarterPanel extends JPanel implements
 
         }
         return btnNewButton;
+    }
+
+    private void askUserWhatToDoWithResults(File zip) {
+        try {
+
+            String[] options = {"Save results", "Send results via email", "Cancel"};
+            JPanel panel = new JPanel();
+            panel.add(new JLabel("Tests finished, do you want to send the results via email?"), BorderLayout.CENTER);
+            int selected = JOptionPane.showOptionDialog(
+                    SwingUtilities.getRootPane(EnvTestStarterPanel.this), panel, "Results", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+            switch (selected) {
+                case 2:
+                case JOptionPane.CLOSED_OPTION:
+                    break;
+                case 0:
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setSelectedFile(new File("results.zip"));
+                    if (fileChooser.showSaveDialog(EnvTestStarterPanel.this) == JFileChooser.APPROVE_OPTION) {
+                        File file = fileChooser.getSelectedFile();
+                        Files.copy(zip, file);
+                    } else {
+                        askUserWhatToDoWithResults(zip);
+                    }
+                    break;
+                case 1:
+                    File tmp = new File(Files.createTempDir(), zip.getName());
+
+                    Files.copy(zip, tmp);
+                    Desktop desktop = Desktop.getDesktop();
+                    EmailUtils.mailto(EMAIL, "Environment-test result",
+                            "<please fill in your name and details about where you are located>", tmp.getAbsolutePath());
+
+                    break;
+                default:
+                    throw new RuntimeException("No valid option: "+selected);
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private TestListPanel getTestListPanel() {

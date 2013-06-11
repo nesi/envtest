@@ -3,7 +3,9 @@ package nz.org.nesi.envtester
 import com.google.common.collect.Lists
 import com.google.common.collect.Sets
 import com.google.common.eventbus.EventBus
+import grisu.jcommons.configuration.CommonGridProperties
 import grisu.jcommons.constants.GridEnvironment
+import grisu.jcommons.git.GitRepoUpdater
 import grith.jgrith.cred.Cred
 import nz.org.nesi.envtester.view.cli.CliTestListener
 import org.slf4j.Logger
@@ -18,7 +20,7 @@ class TestController {
 
 	static final Logger log = LoggerFactory.getLogger(TestController.class);
 
-	static main(def args) {
+    static main(def args) {
 
 
 		CliTestListener l = new CliTestListener()
@@ -34,6 +36,8 @@ class TestController {
 	}
 
 	public static EventBus eventBus = new EventBus("envTest")
+
+    public static final String TEST_CONFIG_KEY = "ENVTEST_CONFIG"
 
 	private final List<EnvTest> tests = Lists.newArrayList()
 
@@ -55,13 +59,19 @@ class TestController {
 
 		try {
 			if ( ! pathToConfig ) {
-				pathToConfig = 'https://raw.github.com/nesi/nesi-grid-info/master/env_test_config.groovy'
+                pathToConfig = CommonGridProperties.getDefault().getOtherGridProperty(TEST_CONFIG_KEY)
+                if ( ! pathToConfig ) {
+                    pathToConfig = 'https://raw.github.com/nesi/nesi-grid-info/master/env_test_config.groovy'
+                }
 			}
 
 			if ( pathToConfig.startsWith('http') ) {
 				log.debug 'Retrieving remote config from "'+pathToConfig+'"...'
 				config = new ConfigSlurper().parse(new URL(pathToConfig))
-			} else {
+			} else if ( pathToConfig.startsWith("git:")) {
+                File file = GitRepoUpdater.ensureUpdated(pathToConfig)
+                config = new ConfigSlurper().parse(file.toURL())
+            } else {
 				log.debug 'Using local config from "'+pathToConfig+'"...'
 				config = new ConfigSlurper().parse(new File(pathToConfig).toURL())
 			}
