@@ -39,7 +39,7 @@ class IPerfTest extends ExternalCommandEnvTest {
             executable = 'bin' + File.separator+'linux'+File.separator+'iperf'
         }
 
-        
+
         // workaround a bug in Packagefilehelper
         File newFile = new File(PackageFileHelper.TEMP_DIR, executable)
         newFile.getParentFile().mkdirs()
