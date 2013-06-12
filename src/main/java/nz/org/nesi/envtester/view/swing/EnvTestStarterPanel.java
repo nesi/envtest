@@ -6,7 +6,6 @@ import grith.gridsession.view.GridLoginDialog;
 import grith.jgrith.cred.AbstractCred;
 import grith.jgrith.cred.Cred;
 import net.miginfocom.swing.MigLayout;
-import nz.org.nesi.envtester.EmailUtils;
 import nz.org.nesi.envtester.EnvTest;
 import nz.org.nesi.envtester.TestController;
 
@@ -144,9 +143,10 @@ public class EnvTestStarterPanel extends JPanel implements
     private void askUserWhatToDoWithResults(File zip) {
         try {
 
-            String[] options = {"Save results", "Send results via email", "Cancel"};
+            //String[] options = {"Save results", "Send results via email", "Cancel"};
+            String[] options = {"Save results", "Cancel"};
             JPanel panel = new JPanel();
-            panel.add(new JLabel("Tests finished, do you want to send the results via email?"), BorderLayout.CENTER);
+            panel.add(new JLabel("Tests finished, please save results and send the file to the appropriate support person."), BorderLayout.CENTER);
             int selected = JOptionPane.showOptionDialog(
                     SwingUtilities.getRootPane(EnvTestStarterPanel.this), panel, "Results", JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
@@ -165,15 +165,15 @@ public class EnvTestStarterPanel extends JPanel implements
                         askUserWhatToDoWithResults(zip);
                     }
                     break;
-                case 1:
-                    File tmp = new File(Files.createTempDir(), zip.getName());
-
-                    Files.copy(zip, tmp);
-                    Desktop desktop = Desktop.getDesktop();
-                    EmailUtils.mailto(EMAIL, "Environment-test result",
-                            "<please fill in your name and details about where you are located>", tmp.getAbsolutePath());
-
-                    break;
+//                case 1:
+//                    File tmp = new File(Files.createTempDir(), zip.getName());
+//
+//                    Files.copy(zip, tmp);
+//                    Desktop desktop = Desktop.getDesktop();
+//                    EmailUtils.mailto(EMAIL, "Environment-test result",
+//                            "<please fill in your name and details about where you are located>", tmp.getAbsolutePath());
+//
+//                    break;
                 default:
                     throw new RuntimeException("No valid option: "+selected);
             }
