@@ -30,6 +30,9 @@ abstract class ExternalCommandEnvTest extends EnvTest {
 
 	}
 
+    public ExternalCommandEnvTest() {
+        super()
+    }
 
 	public ExternalCommandEnvTest(Map<String, String> config) {
 		super(config)
