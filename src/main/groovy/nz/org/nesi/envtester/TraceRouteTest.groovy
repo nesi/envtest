@@ -15,8 +15,9 @@ class TraceRouteTest extends ExternalCommandEnvTest {
 
 		if ( SystemUtils.IS_OS_WINDOWS ) {
 			command.add('tracert')
-		} else {
-
+		} else if ( SystemUtils.IS_OS_MAC_OSX ) {
+            command.add('traceroute')
+        } else {
 			try {
 				def proc = 'traceroute --help'.execute()
 				command.add('tracepath')
