@@ -152,7 +152,7 @@ public class EnvTestStarterPanel extends JPanel implements
                     JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
             switch (selected) {
-                case 2:
+                case 1:
                 case JOptionPane.CLOSED_OPTION:
                     break;
                 case 0:

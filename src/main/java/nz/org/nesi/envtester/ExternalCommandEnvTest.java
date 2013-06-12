@@ -57,6 +57,12 @@ abstract class ExternalCommandEnvTest extends EnvTest {
         Process proc = null;
         ProcessBuilder pb = new ProcessBuilder(getCommand());
 
+        try {
+            proc = pb.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         //proc = getCommand().execute();
 
         InputStream is = proc.getInputStream();
