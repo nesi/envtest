@@ -543,8 +543,8 @@
 	</profiles>
 
 
-	<properties>
-		<grisu.version>0.7</grisu.version>
-	</properties>
+	<!--<properties>-->
+		<!--<grisu.version>0.7</grisu.version>-->
+	<!--</properties>-->
 </project>
 
