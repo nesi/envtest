@@ -30,6 +30,12 @@
 		</repository>
 	</repositories>
 
+    <scm>
+        <connection>scm:git:git://github.com/nesi/envtest.git</connection>
+        <developerConnection>scm:git:git@github.com:nesi/envtest.git</developerConnection>
+        <url>https://github.com/nesi/envtest</url>
+        <tag>HEAD</tag>
+    </scm>
 
 	<dependencies>
 
