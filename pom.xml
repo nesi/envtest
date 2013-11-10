@@ -271,7 +271,7 @@
 							<archive>
 								<index>true</index>
 								<manifest>
-									<mainClass>nz.org.nesi.envtester.phyml.gui.phyml.gui.view.swing.TestStarterFrame</mainClass>
+									<mainClass>nz.org.nesi.envtester.view.swing.TestStarterFrame</mainClass>
 								</manifest>
 								<manifestEntries>
 									<Class-Path>bcprov.jar local-backend-dev.jar local-backend.jar</Class-Path>
@@ -345,17 +345,17 @@
 						<version>2.5</version>
 						<executions>
 							<execution>
-								<id>copy-deb-phyml.gui.control</id>
+								<id>copy-deb-envtest.control</id>
 								<!-- here the phase you need -->
 								<phase>prepare-package</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
 								<configuration>
-									<outputDirectory>${project.build.directory}/pkg/phyml.gui.control</outputDirectory>
+									<outputDirectory>${project.build.directory}/pkg/control</outputDirectory>
 									<resources>
 										<resource>
-											<directory>${project.build.directory}/../src/pkg/phyml.gui.control</directory>
+											<directory>${project.build.directory}/../src/pkg/control</directory>
 											<filtering>false</filtering>
 										</resource>
 									</resources>
@@ -380,7 +380,7 @@
 						<configuration>
 							<includes>
 								<include>target/classes/envtest.version</include>
-								<include>target/pkg/phyml.gui.control/phyml.gui.control</include>
+								<include>target/pkg/control/control</include>
 							</includes>
 							<ignoreMissingFile>false</ignoreMissingFile>
 
@@ -406,7 +406,7 @@
 								<configuration>
 									<changesIn>CHANGES.txt</changesIn>
 									<deb>[[buildDir]]/envtest-${project.version}.deb</deb>
-									<controlDir>target/pkg/phyml.gui.control</controlDir>
+									<controlDir>target/pkg/control</controlDir>
 									<dataSet>
 										<data>
 											<src>${project.build.directory}/envtest-binary.jar</src>
