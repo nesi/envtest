@@ -3,7 +3,7 @@
 	<groupId>nz.org.nesi</groupId>
 	<artifactId>envtest</artifactId>
 	<packaging>jar</packaging>
-	<version>0.2</version>
+	<version>0.3-SNAPSHOT</version>
 	<name>a grisu client</name>
 
 	<parent>
@@ -33,7 +33,7 @@
         <connection>scm:git:git://github.com/nesi/envtest.git</connection>
         <developerConnection>scm:git:git@github.com:nesi/envtest.git</developerConnection>
         <url>https://github.com/nesi/envtest</url>
-        <tag>0.2</tag>
+        <tag>HEAD</tag>
     </scm>
 
 	<dependencies>
