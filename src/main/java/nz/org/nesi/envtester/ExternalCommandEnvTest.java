@@ -2,10 +2,7 @@ package nz.org.nesi.envtester;
 
 import org.apache.commons.lang.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
@@ -44,11 +41,14 @@ abstract class ExternalCommandEnvTest extends EnvTest {
 
     }
 
+
     public ExternalCommandEnvTest(Map<String, String> config) {
         super(config);
     }
 
     abstract protected List<String> getCommand();
+
+    abstract protected String getWorkingDirectory();
 
     @Override
     protected void runTest() {
@@ -57,6 +57,11 @@ abstract class ExternalCommandEnvTest extends EnvTest {
         Process proc = null;
         ProcessBuilder pb = new ProcessBuilder(getCommand());
 
+        if (StringUtils.isNotBlank(getWorkingDirectory())) {
+            pb.directory(new File(getWorkingDirectory()));
+        }
+
+        addResultDetail("Executing command: "+StringUtils.join(getCommand(), " "));
         try {
             proc = pb.start();
         } catch (Exception e) {
@@ -117,6 +122,9 @@ abstract class ExternalCommandEnvTest extends EnvTest {
 
     @Override
     public String getTestDescription() {
+        if ( StringUtils.isNotBlank(config.get(DESC_KEY)) ) {
+            return config.get(DESC_KEY);
+        }
         String cmd = StringUtils.join(getCommand(), " ");
         return "Executing command: '"+cmd+"'";
     }

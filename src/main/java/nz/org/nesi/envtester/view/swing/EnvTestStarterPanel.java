@@ -1,6 +1,7 @@
 package nz.org.nesi.envtester.view.swing;
 
 import com.google.common.io.Files;
+import grisu.jcommons.utils.swing.LogPanel;
 import grith.gridsession.GridClient;
 import grith.gridsession.view.GridLoginDialog;
 import grith.jgrith.cred.AbstractCred;

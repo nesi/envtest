@@ -122,60 +122,83 @@ public class EnvTestResult {
 		return map;
 	}
 
+
+    public String getResultsString() {
+        // results file
+        StringBuffer temp = new StringBuffer("Test: "+getTestName()+"\n\n");
+        temp.append("Description: "+getTestDescription()+"\n\n");
+        temp.append("Result: "+getResult()+"\n\n");
+        temp.append("Log:\n");
+
+        for ( Date d : log.keySet() ) {
+            temp.append(d.toString()+":\t"+ log.get(d)+"\n");
+        }
+        temp.append("\nDetails:\n");
+        for ( String l : details ) {
+            temp.append(l+"\n");
+        }
+
+        if ( getErrors().size() > 0 ) {
+            temp.append("\n\nErrors:\n\n");
+            for ( String e : errors ) {
+                temp.append(e+"\n");
+            }
+        }
+
+        temp.append("\n");
+        return temp.toString();
+    }
+
+    public String getPropertiesString() {
+        StringBuffer temp = new StringBuffer();
+        Map<String, String> map = createPropertiesMap();
+        for ( String key : map.keySet() ) {
+            temp.append(key+" = "+map.get(key)+"\n");
+        }
+        return temp.toString();
+    }
+
+    public String getDetailsString() {
+        StringBuffer temp = new StringBuffer();
+        for ( String detail : getDetails() ) {
+            temp.append(detail+"\n");
+        }
+        return temp.toString();
+    }
+
+    public String getErrorsString() {
+        StringBuffer temp = new StringBuffer();
+        for ( String error : getErrors() ) {
+            temp.append(error+"\n");
+        }
+        return temp.toString();
+    }
+
 	public List<File> getTestFiles() throws IOException {
 
 		File dir = Files.createTempDir();
 
 		List<File> files = Lists.newArrayList();
 
-		// results file
-		StringBuffer temp = new StringBuffer("Test: "+getTestName()+"\n\n");
-		temp.append("Description: "+getTestDescription()+"\n\n");
-		temp.append("Result: "+getResult()+"\n\n");
-		temp.append("Log:\n");
-
-		for ( Date d : log.keySet() ) {
-			temp.append(d.toString()+":\t"+ log.get(d)+"\n");
-		}
-		temp.append("\nDetails:\n");
-		for ( String l : details ) {
-			temp.append(l+"\n");
-		}
-
-		if ( getErrors().size() > 0 ) {
-			temp.append("\n\nErrors:\n\n");
-			for ( String e : errors ) {
-				temp.append(e+"\n");
-			}
-		}
-
-		temp.append("\n");
+        String temp = getResultsString();
 		File resultsFile = new File(dir, "results.test");
 		Files.write(temp, resultsFile, Charsets.UTF_8);
 		files.add(resultsFile);
 
-		temp = new StringBuffer();
-		Map<String, String> map = createPropertiesMap();
-		for ( String key : map.keySet() ) {
-			temp.append(key+" = "+map.get(key)+"\n");
-		}
+		temp = getPropertiesString();
+
 		File propFile = new File(dir, "properties.test");
 		Files.write(temp, propFile, Charsets.UTF_8);
 		files.add(propFile);
 
-		temp = new StringBuffer();
-		for ( String detail : getDetails() ) {
-			temp.append(detail+"\n");
-		}
+		temp = getDetailsString();
+
 		File detailsFile = new File(dir, "details.test");
 		Files.write(temp, detailsFile, Charsets.UTF_8);
 		files.add(detailsFile);
 
 		if ( errors.size() > 0 ) {
-			temp = new StringBuffer();
-			for ( String error : getErrors() ) {
-				temp.append(error+"\n");
-			}
+			temp = getErrorsString();
 			File errorFile = new File(dir, "errors.test");
 			Files.write(temp, errorFile, Charsets.UTF_8);
 			files.add(errorFile);
@@ -208,6 +231,10 @@ public class EnvTestResult {
 
 
 	}
+
+    public String toString() {
+        return getResultsString();
+    }
 
 	public EnvTest getTest() {
 		return test;

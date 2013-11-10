@@ -32,7 +32,12 @@ class TraceRouteTest extends ExternalCommandEnvTest {
 
 	}
 
-	@Override
+    @Override
+    protected String getWorkingDirectory() {
+        return null
+    }
+
+    @Override
 	protected String[] requiredConfigKeys() {
 		return [ HOST_KEY ] as String[]
 	}

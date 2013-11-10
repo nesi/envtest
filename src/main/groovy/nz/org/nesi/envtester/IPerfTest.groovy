@@ -73,7 +73,12 @@ class IPerfTest extends ExternalCommandEnvTest {
 		return command;
 	}
 
-	@Override
+    @Override
+    protected String getWorkingDirectory() {
+        return null;
+    }
+
+    @Override
 	public boolean requiresAuthentication() {
 		return false;
 	}

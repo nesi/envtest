@@ -83,11 +83,18 @@ class TestController {
 				def name = e.key
 				def object = e.value
 
-				if ( ! (object instanceof EnvTest) ) {
-					println 'Not test: '+object.toString()
-					continue
-				}
-				testsTemp.add(object)
+                if ( isCollectionOrArray(object) ) {
+                    object.each {
+                        if ( it instanceof EnvTest ) {
+                            testsTemp.add(it)
+                        }
+                    }
+                } else if (object instanceof EnvTest ) {
+                    testsTemp.add(object)
+				} else {
+                    println 'Not test: '+object.toString()
+                    continue
+                }
 			}
 
 			addTests(testsTemp)
@@ -99,6 +106,10 @@ class TestController {
 
 
 	}
+
+    public static boolean isCollectionOrArray(object) {
+    [Collection, Object[]].any { it.isAssignableFrom(object.getClass()) }
+}
 
 	public TestController() {
 		this((String)null)
